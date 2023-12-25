@@ -40,7 +40,7 @@ no_transfer_label_dict = {
 }
 
 
-def getMaskImg(seg_path, img, config_path, model_pth, sent=None, isMask=False, ):
+def getMaskImg(seg_path, img, target_width, target_height, config_path, model_pth, sent=None, isMask=False, ):
     if not isMask:
         img_style1 = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img_style2 = img_style1 / 255.0
@@ -50,6 +50,8 @@ def getMaskImg(seg_path, img, config_path, model_pth, sent=None, isMask=False, )
 
         # mask0 = getMask(img, sent, config_path, model_pth)
         mask = cv2.imread(seg_path)
+        # resize
+        mask = cv2.resize(mask, (target_height, target_width))
         # img.shape = (1024, 2048, 3)
         # mask.shape = (1024, 2048, 3)
         # mask0.shape = (1024, 2048)
@@ -424,9 +426,14 @@ def StyleProcess(img_path, seg_path, cris_prompt, style_prompt, seed, save_epoch
     if os.path.exists(result_output_image_path):
         print(f"File '{result_output_image_path}' already exists. Exiting function.")
         return
+    target_width = 256
+    target_height = 512
 
     img = cv2.imread(img_path)
-    mask = getMaskImg(seg_path, img, config_path, model_pth, cris_prompt, isMask=False)
+    # resize
+    img = cv2.resize(img, (target_height, target_width))
+
+    mask = getMaskImg(seg_path, img, target_width, target_height, config_path, model_pth, cris_prompt, isMask=False)
 
     img = load_image(img, mode="CV")
     mask = load_image(mask)
@@ -571,7 +578,7 @@ StyleProcess(
     img_path='/nfs/s3_common_dataset/cityscapes/leftImg8bit/train/tubingen/tubingen_000061_000019_leftImg8bit.png',
     seg_path='/nfs/s3_common_dataset/cityscapes/gtFine/train/tubingen/tubingen_000061_000019_gtFine_labelIds.png',
     cris_prompt='?',
-    style_prompt='snow',
+    style_prompt='night',  # snow, rain, night, game
     seed=12345,
     save_epoch=True,
     size=128,
