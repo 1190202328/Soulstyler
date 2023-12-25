@@ -43,9 +43,10 @@ def getMask(img,sent,config_path,model_pth):
     # build model
     model, _ = build_segmenter(args)
     model = torch.nn.DataParallel(model).cuda()
-    #load model
-    checkpoint = torch.load(model_pth)
-    model.load_state_dict(checkpoint['state_dict'], strict=True)
+    # TODO 暂时不要加载模型
+    # #load model
+    # checkpoint = torch.load(model_pth)
+    # model.load_state_dict(checkpoint['state_dict'], strict=True)
     # inference
     return mask(img,sent, model, args)
 
